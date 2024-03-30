@@ -3,12 +3,18 @@ import math
 import scipy.stats as ss
 
 
-def build_denominators_for_normalization(number_of_criteria, decision_matrix):
+weight = None
+number_of_criteria = None
+decision_matrix = None
+criteria_type = None
+
+
+def build_denominators_for_normalization():
     sum_matrix_columns = [0] * number_of_criteria
 
     for alternative_scores in decision_matrix:
         for index, score in enumerate(alternative_scores):
-            sum_matrix_columns[index] = sum_matrix_columns[index] + pow(score, 2)
+            sum_matrix_columns[index] += pow(score, 2)
 
     denominators = []
 
@@ -18,8 +24,8 @@ def build_denominators_for_normalization(number_of_criteria, decision_matrix):
     return denominators
 
 
-def build_weighted_normalized_matrix(number_of_criteria, decision_matrix, weight):
-    denominators = build_denominators_for_normalization(number_of_criteria, decision_matrix)
+def build_weighted_normalized_matrix():
+    denominators = build_denominators_for_normalization()
 
     weighted_normalized_matrix = []
 
@@ -35,7 +41,7 @@ def build_weighted_normalized_matrix(number_of_criteria, decision_matrix, weight
     return weighted_normalized_matrix
 
 
-def build_matrix_for_ideal_solution(number_of_criteria, weighted_normalized_matrix):
+def build_matrix_for_ideal_solution(weighted_normalized_matrix):
     matrix_for_ideal_solution = [[] for _ in range(number_of_criteria)]
     
     for weighted_scores in weighted_normalized_matrix:
@@ -45,7 +51,7 @@ def build_matrix_for_ideal_solution(number_of_criteria, weighted_normalized_matr
     return matrix_for_ideal_solution
 
 
-def get_ideal_solution(number_of_criteria, matrix_for_ideal_solution, criteria_type):
+def get_ideal_solutions(matrix_for_ideal_solution):
     positive_ideal_solutions = [0] * number_of_criteria
     negative_ideal_solutions = [0] * number_of_criteria
     
@@ -73,10 +79,10 @@ def get_distance_from_ideal_solution(weighted_normalized_matrix, positive_ideal_
             sum_negative_distance += pow(weighted_score - negative_ideal_solutions[index], 2)
 
         positive_distance = math.sqrt(sum_positive_distance)
-        distance = math.sqrt(sum_negative_distance)
+        negative_distance = math.sqrt(sum_negative_distance)
         
         distance_from_positive.append(positive_distance)
-        distance_from_negative.append(distance)
+        distance_from_negative.append(negative_distance)
 
     return distance_from_positive, distance_from_negative
 
@@ -92,25 +98,10 @@ def get_relative_closeness_to_ideal_solution(distance_from_positive, distance_fr
     return relative_closeness
 
 
-def topsis(weight, decision_matrix, criteria_type):
-    number_of_criteria = len(weight)
-
-    weighted_normalized_matrix = build_weighted_normalized_matrix(
-        number_of_criteria,
-        decision_matrix,
-        weight
-    )
-
-    matrix_for_ideal_solution = build_matrix_for_ideal_solution(
-        number_of_criteria,
-        weighted_normalized_matrix
-    )
-    
-    positive_ideal_solutions, negative_ideal_solutions = get_ideal_solution(
-        number_of_criteria,
-        matrix_for_ideal_solution,
-        criteria_type
-    )
+def topsis():
+    weighted_normalized_matrix = build_weighted_normalized_matrix()
+    matrix_for_ideal_solution = build_matrix_for_ideal_solution(weighted_normalized_matrix)
+    positive_ideal_solutions, negative_ideal_solutions = get_ideal_solutions(matrix_for_ideal_solution)
 
     distance_from_positive, distance_from_negative = get_distance_from_ideal_solution(
         weighted_normalized_matrix,
